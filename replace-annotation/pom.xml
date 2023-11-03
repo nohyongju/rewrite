@@ -13,4 +13,12 @@
     <groupId>yjnoh.share</groupId>
     <artifactId>replace-annotation</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>yjnoh.rewrite</groupId>
+            <artifactId>rewrite-share</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
 </project>

@@ -1,75 +1,45 @@
 package yjnoh.rewrite.service;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import yjnoh.rewrite.util.CommonVariables;
 
 @Service
+@RequiredArgsConstructor
 public class RemoveAnnotationService {
-    private final String[] TRANSACTIONAL_ANNOTATIONS = {"@Transactional(readOnly = true)", "@Transactional"};
-
-    private final String TRANSACTIONAL_IMPORT = "import org.springframework.transaction.annotation.Transactional;";
-
-    private final String NEW_LINE = "\r\n";
+    private final ShareService shareService;
 
     public void remove(List<String> repositoryPath) {
         repositoryPath.forEach(this::remove);
     }
 
     public void remove(String path) {
-        String content = readFile(path);
-        if (hasAnnotation(content)) {
+        String content = shareService.readFile(path);
+        if (shareService.hasAnnotation(content)) {
             content = removeAnnotation(content);
             content = removeImport(content);
-            content = content + NEW_LINE;
-            writeFile(path, content);
+            content = content + CommonVariables.NEW_LINE;
+            shareService.writeFile(path, content);
         }
     }
 
-    public boolean hasAnnotation(String content) {
-        return Arrays.stream(TRANSACTIONAL_ANNOTATIONS)
-            .anyMatch(content::contains);
-    }
-
     public String removeAnnotation(String content) {
-        for (String annotation : TRANSACTIONAL_ANNOTATIONS) {
-            content = content.replace(NEW_LINE+annotation, "");
+        for (String annotation : CommonVariables.TRANSACTIONAL_ANNOTATIONS) {
+            String origin = CommonVariables.NEW_LINE + annotation;
+            content = content.replace(origin, "");
         }
 
         return content;
     }
 
     public String removeImport(String content) {
-        if (!hasAnnotation(content)) {
-            return content.replace(NEW_LINE+TRANSACTIONAL_IMPORT, "");
+        if (!shareService.hasAnnotation(content)) {
+            String origin = CommonVariables.NEW_LINE + CommonVariables.TRANSACTIONAL_IMPORT;
+            return content.replace(origin, "");
         }
         return content;
     }
 
-    public String readFile(String path) {
-        String content = null;
-        try {
-            content = Files.lines(Paths.get(path))
-                .collect(Collectors.joining(System.lineSeparator()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return content;
-    }
-
-    public void writeFile(String path, String content) {
-        try (FileWriter fw = new FileWriter(path)) {
-            fw.write(content);
-            System.out.println("[RemoveAnnotation]" + path);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
