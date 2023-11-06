@@ -20,8 +20,9 @@ public class RemoveAnnotationService {
         if (shareService.hasAnnotation(content)) {
             content = removeAnnotation(content);
             content = removeImport(content);
-            content = content + CommonVariables.NEW_LINE;
+            content = shareService.addNewLine(content);
             shareService.writeFile(path, content);
+            System.out.println("[RemoveAnnotation]" + path);
         }
     }
 

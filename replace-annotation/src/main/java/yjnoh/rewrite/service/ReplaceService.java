@@ -1,5 +1,10 @@
 package yjnoh.rewrite.service;
 
+import static yjnoh.rewrite.util.CommonVariables.TOBE_TRANSACTIONAL_IMPORT;
+import static yjnoh.rewrite.util.CommonVariables.TOBE_TRANSACTION_ANNOTATION;
+import static yjnoh.rewrite.util.CommonVariables.TRANSACTIONAL_IMPORT;
+import static yjnoh.rewrite.util.CommonVariables.TRANSACTION_ANNOTATION;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,14 +33,26 @@ public class ReplaceService {
     }
 
     public void process(List<String> path) {
-        path.forEach(this::replace);
+        path.forEach(this::rewrite);
     }
 
-    public void replace(String path) {
+    public void rewrite(String path) {
         String content = shareService.readFile(path);
 
         if (shareService.hasAnnotation(content)) {
-            // todo
+            content = replaceImport(content);
+            content = replaceAnnotation(content);
+            content = shareService.addNewLine(content);
+            shareService.writeFile(path, content);
+            System.out.println("[ReplaceAnnotation]" + path);
         }
+    }
+
+    public String replaceImport(String content) {
+        return content.replaceAll(TRANSACTIONAL_IMPORT, TOBE_TRANSACTIONAL_IMPORT);
+    }
+
+    public String replaceAnnotation(String content) {
+        return content.replaceAll(TRANSACTION_ANNOTATION, TOBE_TRANSACTION_ANNOTATION);
     }
 }

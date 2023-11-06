@@ -27,7 +27,6 @@ public class ShareService {
     public void writeFile(String path, String content) {
         try (FileWriter fw = new FileWriter(path)) {
             fw.write(content);
-            System.out.println("[RemoveAnnotation]" + path);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -36,5 +35,9 @@ public class ShareService {
     public boolean hasAnnotation(String content) {
         return Arrays.stream(CommonVariables.TRANSACTIONAL_ANNOTATIONS)
             .anyMatch(content::contains);
+    }
+
+    public String addNewLine(String content) {
+        return content + CommonVariables.NEW_LINE;
     }
 }
